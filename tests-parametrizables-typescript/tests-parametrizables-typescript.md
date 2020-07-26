@@ -1,11 +1,10 @@
-# Tests parametrizables - Ejemplos en TypeScript
+# Tests parametrizables - Ejemplo en TypeScript
 
-> El ejemplo propuesto en este artículo se ha escrito en _TypeScript_ y con la librería de testing _Jest_. No obstante, los concepto son extraponables a cualquier leguaje/librería de tests.
+> El ejemplo propuesto en este artículo se ha escrito en _TypeScript_ con la librería de testing _Jest_. No obstante, los concepto son extraponables a cualquier leguaje/librería de tests.
 
 Intentamos escribir código limpio y simple para que sea etendible y fácil de mantener pero es común no tratar el código de nuestros tests de la misma forma, cuando en realidad, son igual de importantes que el código de la funcionalidad que prueban.
 
-Parametrizar un tests nos ayudará a simplificar un conjunto de tests grande donde hemos encontrado un patrón que se repite. Para ser mas ilustrativos veamos la siguiente historia de usuario:
-
+Parametrizar un tests nos ayudará a simplificar un conjunto de tests grande donde hemos encontrado un patrón que se repite. Para ser más ilustrativos veamos la siguiente historia de usuario:
 ```
 Como usuario de la plataforma X, necesito poder registrarme indicando mi nombre, número de telélefono, email y contraseña.
 
@@ -15,7 +14,7 @@ Pruebas de aceptación:
 
 ```
 
-Dada la historia de usuario anterior llegará un momento donde necesitemos crear esas validaciones para los datos del formulario. Un posible primer tests podría ser el siguiente:
+Dada la historia de usuario anterior llegará un momento donde necesitaremos crear esas validaciones para los datos del formulario. Un posible primer test podría ser el siguiente:
 
 ```javascript
 test("name is required", () => {
@@ -29,7 +28,7 @@ test("name is required", () => {
     const result = validator.validate(request);
 
     expect(result).toMatchObject({ isValid: false });
-    expect(result).toMatchObject({ error: [ {fieldId: "name", errorCode: "required" } ] });
+    expect(result).toMatchObject({ error: [ { fieldId: "name", errorCode: "required" } ] });
 });
 ```
 En el test estamos testando de manera unitaria un artefacto que validará un objeto que representa la petición de registro del usuario. En el caso de que enconstrase algún error de validación nos devolvería una lista de errores, compuesta por el identificador del campo y el identificador del error.
@@ -41,10 +40,10 @@ test("phone number is required", () => {/**/});
 test("email is required", () => {/**/});
 test("password is required", () => {/**/});
 ```
-Si somos un poco observadores encontraremos rápidamente un patrón que se repite en todos los tests. La preparación, ejecución y las aserciones de los tests son idententicas menos por los campos que se están probando.
-Llegados a este punto podemos plantearnos refactorizar nuestros tests y crear un único test parametrizable que se ejecute tantas veces como validaciones haya.
+Si somos un poco observadores encontraremos rápidamente un patrón que se repite en todos los tests. La preparación, ejecución y las aserciones de los tests son idéntenticas menos por los campos que se están probando.
+Llegados a este punto podemos plantearnos refactorizar nuestros tests y crear un único test que se ejecute tantas veces como validaciones haya.
 
-Veamos las partes del test que podemos parametrizar, para ello marcaré con la palabra _PARAM_ los puntos donde encontramos diferencias en los tests:
+Veamos las partes del test que podemos parametrizar. Para ello marcaré con la palabra _PARAM_ los puntos donde encontramos diferencias en los tests:
 
 ```javascript
 test(PARAM, () => {
@@ -57,8 +56,8 @@ test(PARAM, () => {
 });
 ```
 Encontramos 4 parámetros que nos harán falta:
-- *La descripción del tests:* Testaremos diferentes casos por cada ejecución de nuestro test por lo que es muy importante indentificar qué estamos probando en cada momento.
-- *La construcción de la petición de registro:* Para testar los diferentes casos necesitaremos instanciar el objeto que representa la petición de registro del usuario en un estado diferente por cada tests, para ello nos apoyaremos en una función constructora con parametros opcionales para nuestro objecto:
+- **La descripción del test:** Testaremos diferentes casos por cada ejecución de nuestro test por lo que es muy importante indentificar qué estamos probando en cada momento.
+- **La construcción de la petición de registro:** Para testar los diferentes casos necesitaremos instanciar el objeto que representa la petición de registro del usuario en un estado diferente por cada test, para ello nos apoyaremos en una función constructora con parámetros opcionales para nuestro objecto:
 
 ```javascript
 interface IBuildUserSigningUpRequestFuncParams {
@@ -72,9 +71,10 @@ function buildUserSigningUpRequest({
     name = "Antonio",
     phoneNumber = "123121212",
     email = "antonio@email.com",
-    password = "miPassSuperSegura
+    password = "miPassSuperSegura"
 }: IBuildUserSigningUpRequestFuncParams) {
-    return new new UserSigningUpRequest({
+
+    return new UserSigningUpRequest({
         name: name,
         phoneNumber: phoneNumber,
         email: email,
@@ -83,8 +83,8 @@ function buildUserSigningUpRequest({
 };
 ```
 
-- *El identificador de campo esperado:* Cada campo del formulario tendrá un idententificador unico asociado.
-- *El identificador del error esperado:* Cada error de validación que podamos tener tendrá un idententificador unico asociado.
+- **El identificador de campo esperado:** Cada campo del formulario tendrá un idententificador único asociado.
+- **El identificador del código de error esperado:** Cada error de validación que podamos tener tendrá un idententificador único asociado.
 
 Una vez identificados los puntos que cambian en cada test podemos crear una lista de casos de prueba. Será una lista de objetos donde cada objeto tendrá una propiedad que configurará cada unos de los parámetros de nuestro test. Veamos un ejemplo:
 
@@ -100,6 +100,7 @@ class FieldValidationTestCase {
         buildUserSigningUpRequestFunc: () => UserSigningUpRequest,
         expectedFieldId: string,
         expectedErrorCode: string) {
+
         this.description = description;
         this.buildUserSigningUpRequestFunc = buildUserSigningUpRequestFunc;
         this.expectedFieldId = expectedFieldId;
@@ -124,7 +125,7 @@ const fieldsValidationsTestsCases: FieldValidationTestCase[] = [
 ];
 ```
 
-Una vez creado todos los casos de prueba duplicaremos uno de los tests que ya tengamos hecho y lo ejecutaremos con cada uno de los casos de test de nuestra lista:
+Una vez creado todos los casos de prueba duplicaremos uno de los test que ya tengamos hecho y lo ejecutaremos con cada uno de los casos de test de nuestra lista:
 
 ```javascript
 fieldsValidationsTestsCases.forEach(testCase, () => {
