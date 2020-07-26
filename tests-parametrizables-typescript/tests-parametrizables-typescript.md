@@ -1,6 +1,6 @@
 # Tests parametrizables - Ejemplo en TypeScript
 
-> El ejemplo propuesto en este artículo se ha escrito en _TypeScript_ con la librería de testing _Jest_. No obstante, los concepto son extraponables a cualquier leguaje/librería de tests.
+> El ejemplo propuesto en este artículo se ha escrito en _TypeScript_ con la librería de testing _Jest_. No obstante, los concepto son extrapolables a cualquier leguaje/librería de tests.
 
 Intentamos escribir código limpio y simple para que sea etendible y fácil de mantener pero es común no tratar el código de nuestros tests de la misma forma, cuando en realidad, son igual de importantes que el código de la funcionalidad que prueban.
 
